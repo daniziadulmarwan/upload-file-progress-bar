@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="wrapper">
+        <form
+          id="uploadForm"
+          class="form"
+          enctype="multipart/form-data"
+          method="post"
+        >
+          <input type="file" name="image" id="inputFile" />
+          <button type="submit" id="submit">Upload</button>
+        </form>
+
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-bar-fill">
+            <div class="progress-bar-text">0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const uploadForm = document.getElementById("uploadForm");
+      const inputFile = document.getElementById("inputFile");
+      const progressBarFill = document.querySelector(
+        "#progressBar > .progress-bar-fill"
+      );
+      const progressBarText =
+        progressBarFill.querySelector(".progress-bar-text");
+
+      uploadForm.addEventListener("submit", uploadFile);
+
+      function uploadFile(e) {
+        e.preventDefault();
+
+        const xhr = new XMLHttpRequest();
+
+        // collect files
+        const files = document.querySelector("[name=image]").files;
+        const formData = new FormData();
+        formData.append("image", files[0]);
+
+        xhr.open("POST", "/upload");
+        xhr.upload.addEventListener("progress", (e) => {
+          const percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+
+          progressBarFill.style.width = percent.toFixed(2) + "%";
+          progressBarText.textContent = percent.toFixed(2) + "%";
+        });
+
+        xhr.addEventListener("load", function (e) {
+          progressBarText.textContent = "Complete";
+          setTimeout(() => {
+            uploadForm.reset();
+            window.location.reload();
+          }, 1000);
+        });
+
+        xhr.send(formData);
+      }
+    </script>
+  </body>
+</html>
